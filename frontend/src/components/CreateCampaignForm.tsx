@@ -4,12 +4,7 @@ import type React from "react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { getContract } from "@/lib/contract";
-import { ethers } from "ethers";
-import { CloudUpload, Video } from "lucide-react";
-import { useState } from "react";
-import { Slide, toast } from "react-toastify";
+import { Label } from "@/components/ui/label";
 import {
   Sheet,
   SheetContent,
@@ -18,7 +13,12 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { getContract } from "@/lib/contract";
+import { ethers } from "ethers";
+import { CloudUpload, Video } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export default function CreateCampaignSheet() {
   const [title, setTitle] = useState<string>("");
@@ -82,16 +82,7 @@ export default function CreateCampaignSheet() {
   // Handle campaign creation submission
   const handleSubmit = async () => {
     if (!title || !description || Number(goal) <= 0 || Number(duration) <= 0) {
-      toast.error("Please fill in all fields correctly.", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Please fill in all fields correctly.", {});
       return;
     }
     setLoading(true);
@@ -107,32 +98,14 @@ export default function CreateCampaignSheet() {
         mediaHashes
       );
       await tx.wait();
-      toast.success("Campaign created successfully", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.success("Campaign created successfully", {});
 
       // Reset form and close sheet
       resetForm();
       setOpen(false);
     } catch (error) {
       console.error("Error creating campaign:", error);
-      toast.error("Failed to create campaign", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Failed to create campaign", {});
     } finally {
       setLoading(false);
     }

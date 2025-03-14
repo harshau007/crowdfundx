@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { ArrowRight, Clock, Target, Users } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
-import { Slide, toast } from "react-toastify";
+import { toast } from "sonner";
 import { Button } from "./ui/button";
 import { Card, CardContent, CardFooter, CardHeader } from "./ui/card";
 import { Input } from "./ui/input";
@@ -65,16 +65,10 @@ const CampaignCard: React.FC<CampaignProps> = ({
     e.preventDefault();
     e.stopPropagation();
     if (!contribution || Number(contribution) <= 0) {
-      toast.error("Please enter a valid contribution amount greater than 0.", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error(
+        "Please enter a valid contribution amount greater than 0.",
+        {}
+      );
       return;
     }
     setLoading(true);
@@ -84,29 +78,11 @@ const CampaignCard: React.FC<CampaignProps> = ({
         value: ethers.parseEther(contribution),
       });
       await tx.wait();
-      toast.success("Contribution Successful", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.success("Contribution Successful", {});
       setContribution("");
     } catch (error) {
       console.error("Error contributing:", error);
-      toast.error("Failed to contribute", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Failed to contribute", {});
     } finally {
       setLoading(false);
     }

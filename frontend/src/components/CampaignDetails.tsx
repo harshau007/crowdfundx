@@ -1,11 +1,10 @@
 "use client";
 
-import type React from "react";
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { connectWallet, getContract, getEscrowContract } from "@/lib/contract";
+import { TokenETH } from "@web3icons/react";
 import AutoPlay from "embla-carousel-autoplay";
 import useEmblaCarousel from "embla-carousel-react";
 import { ethers } from "ethers";
@@ -15,14 +14,15 @@ import {
   Calendar,
   Clock,
   Copy,
-  DollarSign,
   Info,
   Shield,
   Users,
 } from "lucide-react";
 import { useParams, useRouter } from "next/navigation";
+import type React from "react";
 import { useEffect, useState } from "react";
-import { Slide, toast } from "react-toastify";
+import { toast } from "sonner";
+import DescriptionSection from "./DescriptionSection";
 import { Badge } from "./ui/badge";
 import {
   Tooltip,
@@ -85,7 +85,7 @@ const Media: React.FC<MediaProps> = ({ url }) => {
 
   if (isLoading) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-900">
+      <div className="w-full h-full flex items-center justify-center bg-background">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-teal-500"></div>
       </div>
     );
@@ -108,7 +108,7 @@ const Media: React.FC<MediaProps> = ({ url }) => {
 
   if (videoError) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-gray-900 text-red-500">
+      <div className="w-full h-full flex items-center justify-center bg-background text-red-500">
         <p>Error loading video</p>
       </div>
     );
@@ -145,8 +145,8 @@ const DynamicCarousel: React.FC<DynamicCarouselProps> = ({ campaign }) => {
   // Handle case where there are no media items
   if (!campaign.mediaHashes || campaign.mediaHashes.length === 0) {
     return (
-      <div className="flex items-center justify-center h-[500px] bg-gray-900 rounded-xl shadow-lg">
-        <p className="text-lg text-gray-400 font-roboto-mono">
+      <div className="flex items-center justify-center h-[500px] bg-background rounded-xl shadow-lg">
+        <p className="text-lg text-foreground font-roboto-mono">
           No media available
         </p>
       </div>
@@ -328,16 +328,7 @@ export default function CampaignDetails() {
     e.preventDefault();
     const contributionValue = Number(contribution);
     if (!contribution || isNaN(contributionValue) || contributionValue <= 0) {
-      toast.error("Please enter a valid positive number for contribution.", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Please enter a valid positive number for contribution.", {});
       return;
     }
     setContributeLoading(true);
@@ -347,30 +338,12 @@ export default function CampaignDetails() {
         value: ethers.parseEther(contribution),
       });
       await tx.wait();
-      toast.success("Contribution Successful", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.success("Contribution Successful", {});
       setContribution("");
       await fetchData();
     } catch (error) {
       console.error("Error contributing:", error);
-      toast.error("Failed to contribute", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Failed to contribute", {});
     } finally {
       setContributeLoading(false);
     }
@@ -382,29 +355,11 @@ export default function CampaignDetails() {
       const contract = await getContract();
       const tx = await contract.refund(Number(id), { gasLimit: 1000000 });
       await tx.wait();
-      toast.success("Refund requested successfully!", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.success("Refund requested successfully!", {});
       await fetchData();
     } catch (error: any) {
       console.error("Error refunding:", error);
-      toast.error("Failed to refund: " + (error.reason || error.message), {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.error("Failed to refund: " + (error.reason || error.message), {});
     } finally {
       setRefundLoading(false);
     }
@@ -416,31 +371,13 @@ export default function CampaignDetails() {
       const contract = await getContract();
       const tx = await contract.releaseFunds(Number(id), { gasLimit: 1000000 });
       await tx.wait();
-      toast.success("Funds released successfully", {
-        position: "bottom-right",
-        autoClose: 1000,
-        hideProgressBar: false,
-        closeOnClick: false,
-        pauseOnHover: true,
-        draggable: true,
-        theme: "dark",
-        transition: Slide,
-      });
+      toast.success("Funds released successfully", {});
       await fetchData();
     } catch (error: any) {
       console.error("Error releasing funds:", error);
       toast.error(
         "Failed to release funds: " + (error.reason || error.message),
-        {
-          position: "bottom-right",
-          autoClose: 1000,
-          hideProgressBar: false,
-          closeOnClick: false,
-          pauseOnHover: true,
-          draggable: true,
-          theme: "dark",
-          transition: Slide,
-        }
+        {}
       );
     } finally {
       setReleaseLoading(false);
@@ -451,21 +388,12 @@ export default function CampaignDetails() {
     navigator.clipboard.writeText(text);
     setCopiedAddress(text);
     setTimeout(() => setCopiedAddress(null), 2000);
-    toast.success("Address copied to clipboard", {
-      position: "bottom-right",
-      autoClose: 1000,
-      hideProgressBar: false,
-      closeOnClick: false,
-      pauseOnHover: true,
-      draggable: true,
-      theme: "dark",
-      transition: Slide,
-    });
+    toast.success("Address copied to clipboard", {});
   };
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
         <div className="flex flex-col items-center">
           <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-teal-500 mb-4"></div>
           <p className="text-lg">Loading campaign details...</p>
@@ -476,15 +404,15 @@ export default function CampaignDetails() {
 
   if (!campaign) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-black text-white">
-        <div className="bg-gray-900 p-8 rounded-xl shadow-lg text-center">
+      <div className="min-h-screen flex items-center justify-center bg-background text-foreground">
+        <div className="bg-background p-8 rounded-xl shadow-lg text-center">
           <h2 className="text-2xl font-bold mb-4">Campaign Not Found</h2>
           <p className="mb-6">
             The campaign you're looking for doesn't exist or has been removed.
           </p>
           <Button
             onClick={() => router.push("/")}
-            className="bg-teal-500 hover:bg-teal-600 text-white"
+            className="bg-background hover:bg-border text-foreground"
           >
             Back to Campaigns
           </Button>
@@ -498,6 +426,14 @@ export default function CampaignDetails() {
     100
   );
 
+  // Dark theme status styles using an accent for active state
+  const statusBadge =
+    campaign.status === 0
+      ? "bg-teal-500 text-primary-foreground" // Active uses an accent
+      : campaign.status === 1
+      ? "" // Completed
+      : "bg-red-500 text-foreground"; // Failed/Refunded
+
   const statusText =
     campaign.status === 0
       ? "Active"
@@ -506,13 +442,6 @@ export default function CampaignDetails() {
       : campaign.status === 2
       ? "Failed"
       : "Refunded";
-
-  const statusColor =
-    campaign.status === 0
-      ? "bg-teal-500"
-      : campaign.status === 1
-      ? "bg-gray-600"
-      : "bg-gray-700";
 
   const canRelease =
     campaign.status === 1 &&
@@ -542,7 +471,7 @@ export default function CampaignDetails() {
   );
 
   return (
-    <div className="min-h-screen bg-black text-white py-8 px-4 md:py-12 md:px-6">
+    <div className="min-h-screen bg-background text-foreground py-8 px-4 md:py-12 md:px-6">
       <div className="max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: -20 }}
@@ -552,7 +481,7 @@ export default function CampaignDetails() {
         >
           <Button
             onClick={() => router.push("/")}
-            className="flex items-center gap-2 bg-gray-900 hover:bg-gray-800 text-white transition-colors"
+            className="flex items-center gap-2 transition-colors"
           >
             <ArrowLeft size={18} /> Back to Campaigns
           </Button>
@@ -566,7 +495,7 @@ export default function CampaignDetails() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Left Column - Media */}
             <div className="lg:col-span-2">
-              <Card className="bg-gray-900 border-gray-800 shadow-xl rounded-xl overflow-hidden">
+              <Card className="bg-background border-border shadow-xl rounded-xl overflow-hidden">
                 <CardContent className="p-6">
                   <DynamicCarousel campaign={campaign} />
                 </CardContent>
@@ -575,17 +504,15 @@ export default function CampaignDetails() {
 
             {/* Right Column - Details */}
             <div className="lg:col-span-1">
-              <Card className="bg-gray-900 border-gray-800 shadow-xl rounded-xl overflow-hidden h-full">
+              <Card className="bg-background border-border shadow-xl rounded-xl overflow-hidden h-full">
                 <CardHeader className="pb-2">
                   <div className="flex justify-between items-start mb-2">
-                    <h1 className="text-2xl md:text-3xl font-bold text-white">
+                    <h1 className="text-2xl md:text-3xl font-bold">
                       {campaign.title}
                     </h1>
-                    <Badge className={`${statusColor} text-white`}>
-                      {statusText}
-                    </Badge>
+                    <Badge className={statusBadge}>{statusText}</Badge>
                   </div>
-                  <div className="flex items-center text-gray-400 text-sm mb-4">
+                  <div className="flex items-center text-muted-foreground-foreground text-sm mb-4">
                     <TooltipProvider>
                       <Tooltip>
                         <TooltipTrigger asChild>
@@ -594,11 +521,14 @@ export default function CampaignDetails() {
                             onClick={() => copyToClipboard(campaign.creator)}
                           >
                             <span className="mr-1">Creator:</span>
-                            <span className="text-teal-400">
+                            <span className="text-teal-500">
                               {campaign.creator.slice(0, 6)}...
                               {campaign.creator.slice(-4)}
                             </span>
-                            <Copy size={14} className="ml-1 text-gray-500" />
+                            <Copy
+                              size={14}
+                              className="ml-1 text-muted-foreground-foreground"
+                            />
                           </div>
                         </TooltipTrigger>
                         <TooltipContent>
@@ -610,21 +540,27 @@ export default function CampaignDetails() {
                 </CardHeader>
 
                 <CardContent className="space-y-6">
-                  <div className="bg-gray-800 rounded-lg p-4">
-                    <p className="text-gray-300">{campaign.description}</p>
+                  <div className="border rounded-lg p-4">
+                    <DescriptionSection description={campaign.description} />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-800 rounded-lg p-3 flex flex-col items-center">
-                      <DollarSign className="h-5 w-5 text-teal-500 mb-1" />
-                      <p className="text-xs text-gray-400">Target</p>
+                    <div className="border bg-background rounded-lg p-3 flex flex-col items-center">
+                      <TokenETH
+                        className="h-8 w-8 text-teal-500 mb-1"
+                        variant="mono"
+                      />
+                      <p className="text-xs text-muted-foreground">Target</p>
                       <p className="text-lg font-semibold">
                         {ethers.formatEther(BigInt(campaign.goal))} ETH
                       </p>
                     </div>
-                    <div className="bg-gray-800 rounded-lg p-3 flex flex-col items-center">
-                      <DollarSign className="h-5 w-5 text-teal-500 mb-1" />
-                      <p className="text-xs text-gray-400">Raised</p>
+                    <div className="border bg-background rounded-lg p-3 flex flex-col items-center">
+                      <TokenETH
+                        className="h-8 w-8 text-teal-500 mb-1"
+                        variant="mono"
+                      />
+                      <p className="text-xs text-muted-foreground">Raised</p>
                       <p className="text-lg font-semibold">
                         {ethers.formatEther(BigInt(campaign.totalFunds))} ETH
                       </p>
@@ -633,12 +569,14 @@ export default function CampaignDetails() {
 
                   <div className="space-y-2">
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-400">Progress</span>
+                      <span className="text-sm text-muted-foreground">
+                        Progress
+                      </span>
                       <span className="text-sm font-medium text-teal-500">
                         {progress.toFixed(1)}%
                       </span>
                     </div>
-                    <div className="w-full bg-gray-800 rounded-full h-2.5 overflow-hidden">
+                    <div className="w-full border rounded-full h-2.5 overflow-hidden">
                       <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${progress}%` }}
@@ -649,18 +587,18 @@ export default function CampaignDetails() {
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="bg-gray-800 rounded-lg p-3 flex flex-col items-center">
+                    <div className="border bg-background rounded-lg p-3 flex flex-col items-center">
                       <Calendar className="h-5 w-5 text-teal-500 mb-1" />
-                      <p className="text-xs text-gray-400">Deadline</p>
+                      <p className="text-xs text-muted-foreground">Deadline</p>
                       <p className="text-sm font-medium">
                         {new Date(
                           campaign.deadline * 1000
                         ).toLocaleDateString()}
                       </p>
                     </div>
-                    <div className="bg-gray-800 rounded-lg p-3 flex flex-col items-center">
+                    <div className="border bg-background rounded-lg p-3 flex flex-col items-center">
                       <Clock className="h-5 w-5 text-teal-500 mb-1" />
-                      <p className="text-xs text-gray-400">Time Left</p>
+                      <p className="text-xs text-muted-foreground">Time Left</p>
                       <p className="text-sm font-medium">
                         {campaign.status === 0
                           ? `${daysLeft}d ${hoursLeft}h`
@@ -691,13 +629,13 @@ export default function CampaignDetails() {
                             }
                           }}
                           placeholder="Enter amount in ETH"
-                          className="flex-1 bg-gray-800 border-gray-700 text-white focus:ring-teal-500 focus:border-teal-500"
+                          className="flex-1 bg-background border-border text-foreground focus:ring-teal-500 focus:border-teal-500"
                           required
                         />
                         <Button
                           type="submit"
                           disabled={contributeDisabled}
-                          className="bg-teal-500 hover:bg-teal-600 text-white disabled:opacity-50 transition-colors"
+                          className="disabled:opacity-50 transition-colors"
                         >
                           {contributeLoading ? "Contributing..." : "Contribute"}
                         </Button>
@@ -709,7 +647,7 @@ export default function CampaignDetails() {
                     <Button
                       onClick={releaseFunds}
                       disabled={releaseDisabled}
-                      className="w-full bg-gray-700 hover:bg-gray-600 text-white disabled:opacity-50 transition-colors"
+                      className="w-full disabled:opacity-50 transition-colors"
                     >
                       {releaseLoading ? "Releasing..." : "Release Funds"}
                     </Button>
@@ -719,7 +657,7 @@ export default function CampaignDetails() {
                     <Button
                       onClick={refund}
                       disabled={refundDisabled}
-                      className="w-full bg-red-500 hover:bg-red-600 text-white disabled:opacity-50 transition-colors"
+                      className="w-full bg-destructive hover:bg-destructive text-destructive-foreground disabled:opacity-50 transition-colors"
                     >
                       {refundLoading ? "Refunding..." : "Request Refund"}
                     </Button>
@@ -736,13 +674,11 @@ export default function CampaignDetails() {
             transition={{ duration: 0.5, delay: 0.3 }}
             className="mt-8"
           >
-            <Card className="bg-gray-900 border-gray-800 shadow-xl rounded-xl overflow-hidden">
-              <CardHeader className="border-b border-gray-800">
+            <Card className="bg-background border-border shadow-xl rounded-xl overflow-hidden">
+              <CardHeader className="border-b border-border">
                 <div className="flex items-center">
-                  <Users className="h-5 w-5 text-teal-500 mr-2" />
-                  <h2 className="text-xl font-semibold text-white">
-                    Contributors
-                  </h2>
+                  <Users className="h-5 w-5 text-foreground mr-2" />
+                  <h2 className="text-xl font-semibold">Contributors</h2>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
@@ -755,11 +691,11 @@ export default function CampaignDetails() {
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.3, delay: index * 0.05 }}
                       >
-                        <div className="bg-gray-800 rounded-lg p-4 border border-gray-700 hover:border-teal-500 transition-colors">
+                        <div className="bg-background rounded-lg p-4 border border-border hover:border-teal-500 transition-colors">
                           <div className="flex justify-between items-center mb-2">
                             <div className="flex items-center">
                               <div className="w-2 h-2 rounded-full bg-teal-500 mr-2"></div>
-                              <span className="text-sm font-medium text-teal-400">
+                              <span className="text-sm font-medium text-foreground">
                                 {ethers.formatEther(
                                   BigInt(contributions[index] || "0")
                                 )}{" "}
@@ -769,7 +705,7 @@ export default function CampaignDetails() {
                             {refunded[index] && (
                               <Badge
                                 variant="outline"
-                                className="bg-gray-800/30 text-gray-400 border-gray-700"
+                                className="bg-background text-muted-foreground border-border"
                               >
                                 Refunded
                               </Badge>
@@ -777,7 +713,7 @@ export default function CampaignDetails() {
                           </div>
                           <div className="flex items-center justify-between">
                             <div
-                              className="truncate text-sm text-gray-400 max-w-[70%]"
+                              className="truncate text-sm text-muted-foreground max-w-[70%]"
                               title={contributor}
                             >
                               {contributor}
@@ -785,10 +721,13 @@ export default function CampaignDetails() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-full hover:bg-gray-700"
+                              className="h-8 w-8 rounded-full hover:bg-border"
                               onClick={() => copyToClipboard(contributor)}
                             >
-                              <Copy size={14} className="text-gray-400" />
+                              <Copy
+                                size={14}
+                                className="text-muted-foreground"
+                              />
                             </Button>
                           </div>
                         </div>
@@ -797,8 +736,8 @@ export default function CampaignDetails() {
                   </div>
                 ) : (
                   <div className="text-center py-8">
-                    <Users className="h-12 w-12 text-gray-600 mx-auto mb-4" />
-                    <p className="text-gray-400">
+                    <Users className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                    <p className="text-muted-foreground">
                       No contributors yet. Be the first to support this
                       campaign!
                     </p>
@@ -815,27 +754,25 @@ export default function CampaignDetails() {
             transition={{ duration: 0.5, delay: 0.4 }}
             className="mt-8"
           >
-            <Card className="bg-gray-900 border-gray-800 shadow-xl rounded-xl overflow-hidden">
-              <CardHeader className="border-b border-gray-800">
+            <Card className="bg-background border-border shadow-xl rounded-xl overflow-hidden">
+              <CardHeader className="border-b border-border">
                 <div className="flex items-center">
-                  <Shield className="h-5 w-5 text-teal-500 mr-2" />
-                  <h2 className="text-xl font-semibold text-white">
-                    Escrow Information
-                  </h2>
+                  <Shield className="h-5 w-5 text-foreground mr-2" />
+                  <h2 className="text-xl font-semibold">Escrow Information</h2>
                 </div>
               </CardHeader>
               <CardContent className="p-6">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="border bg-background rounded-lg p-4">
                     <div className="flex items-center mb-2">
-                      <Info className="h-4 w-4 text-teal-500 mr-2" />
-                      <span className="text-sm font-medium text-white">
+                      <Info className="h-4 w-4 text-foreground mr-2" />
+                      <span className="text-sm font-medium">
                         Escrow Address
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
                       <div
-                        className="truncate text-sm text-gray-400"
+                        className="truncate text-sm text-muted-foreground"
                         title={campaign.escrow}
                       >
                         {campaign.escrow}
@@ -843,22 +780,25 @@ export default function CampaignDetails() {
                       <Button
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 rounded-full hover:bg-gray-700"
+                        className="h-8 w-8 rounded-full hover:bg-border"
                         onClick={() => copyToClipboard(campaign.escrow)}
                       >
-                        <Copy size={14} className="text-gray-400" />
+                        <Copy size={14} className="text-muted-foreground" />
                       </Button>
                     </div>
                   </div>
-                  <div className="bg-gray-800 rounded-lg p-4">
+                  <div className="border bg-background rounded-lg p-4">
                     <div className="flex items-center mb-2">
-                      <DollarSign className="h-4 w-4 text-teal-500 mr-2" />
-                      <span className="text-sm font-medium text-white">
+                      <TokenETH
+                        className="h-4 w-4 text-foreground mr-2"
+                        variant="mono"
+                      />
+                      <span className="text-sm font-medium">
                         Escrow Balance
                       </span>
                     </div>
                     <div className="flex items-center justify-between">
-                      <span className="text-2xl font-bold text-teal-400">
+                      <span className="text-2xl font-bold text-foreground">
                         {escrowBalance} ETH
                       </span>
                       <TooltipProvider>
@@ -867,12 +807,15 @@ export default function CampaignDetails() {
                             <Button
                               variant="ghost"
                               size="icon"
-                              className="h-8 w-8 rounded-full hover:bg-gray-700"
+                              className="h-8 w-8 rounded-full hover:bg-border"
                             >
-                              <Info size={14} className="text-gray-400" />
+                              <Info
+                                size={14}
+                                className="text-muted-foreground"
+                              />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent className="bg-gray-800 border-gray-700 text-white">
+                          <TooltipContent className="bg-background border-border text-foreground">
                             <p>
                               Current balance held in escrow for this campaign
                             </p>
