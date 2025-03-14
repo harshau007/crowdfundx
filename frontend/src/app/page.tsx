@@ -3,7 +3,7 @@ import CampaignList from "@/components/CampaignList";
 import CreateCampaignSheet from "@/components/CreateCampaignForm";
 import { Button } from "@/components/ui/button";
 import { connectWallet } from "@/lib/contract";
-import { Loader2, User } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { Slide, toast } from "react-toastify";
@@ -12,14 +12,58 @@ const App: React.FC = () => {
   const [walletAddress, setWalletAddress] = useState<string | null>(null);
   const [isConnecting, setIsConnecting] = useState(false);
 
+  // Retrieve stored wallet address on mount
   useEffect(() => {
-    const fetchWallet = async () => {
-      const storedAddress = localStorage.getItem("walletAddress");
-      if (storedAddress) {
-        setWalletAddress(storedAddress);
-      }
-    };
-    fetchWallet();
+    const storedAddress = localStorage.getItem("walletAddress");
+    if (storedAddress) {
+      setWalletAddress(storedAddress);
+    }
+  }, []);
+
+  // Listen for wallet account changes so the UI updates when wallet is unlocked or locked
+  useEffect(() => {
+    if (window.ethereum) {
+      const handleAccountsChanged = (accounts: string[]) => {
+        if (accounts.length === 0) {
+          // Wallet locked or disconnected
+          setWalletAddress(null);
+          localStorage.removeItem("walletAddress");
+          toast.info("Wallet disconnected or locked", {
+            position: "bottom-right",
+            autoClose: 2000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "dark",
+            transition: Slide,
+          });
+        } else {
+          // Wallet unlocked or changed account
+          setWalletAddress(accounts[0]);
+          localStorage.setItem("walletAddress", accounts[0]);
+          toast.success("Wallet unlocked", {
+            position: "bottom-right",
+            autoClose: 1000,
+            hideProgressBar: false,
+            closeOnClick: true,
+            pauseOnHover: true,
+            draggable: true,
+            theme: "dark",
+            transition: Slide,
+          });
+        }
+      };
+
+      window.ethereum.on("accountsChanged", handleAccountsChanged);
+
+      return () => {
+        window.ethereum.removeListener(
+          "accountsChanged",
+          handleAccountsChanged
+        );
+      };
+    }
   }, []);
 
   const handleConnectWallet = async () => {
@@ -86,9 +130,9 @@ const App: React.FC = () => {
               </span>
             </div>
           )}
-          <div className="border border-white p-2 rounded-full hover:bg-white hover:text-black transition-colors cursor-pointer">
+          {/* <div className="border border-white p-2 rounded-full hover:bg-white hover:text-black transition-colors cursor-pointer">
             <User size={24} />
-          </div>
+          </div> */}
         </div>
       </header>
 
